@@ -1,63 +1,53 @@
 import requests
+from dotenv import load_dotenv
+import os
+from youtube_transcript_api import YouTubeTranscriptApi
 
-# Function to retrieve video IDs from a playlist
+load_dotenv()
 
 
-def get_video_ids_from_playlist(api_key, playlist_id):
-    base_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
-    video_ids = []
-    next_page_token = None
+def get_youtube_playlist_items(playlist_id, api_key):
+    url = f'https://youtube.googleapis.com/youtube/v3/playlistItems'
+    params = {
+        'part': 'snippet,contentDetails',
+        'maxResults': 50,  # You can increase this if you want to retrieve more items per request
+        'playlistId': playlist_id,
+        'key': api_key
+    }
+
+    video_ids = []  # List to hold all video IDs
 
     while True:
-        # Prepare request parameters
-        params = {
-            'part': 'snippet',
-            'playlistId': playlist_id,
-            'key': api_key,
-            'maxResults': 50,
-            'pageToken': next_page_token
-        }
+        response = requests.get(url, params=params)
 
-        # Send the request
-        response = requests.get(base_url, params=params)
-        data = response.json()
+        if response.status_code == 200:
+            data = response.json()
 
-        # Check if response contains items
-        if 'items' not in data:
-            print(f"Error fetching playlist data: {data}")
-            return []
+            # Extract video IDs from the items
+            for item in data.get('items', []):
+                video_id = item['contentDetails']['videoId']
+                video_ids.append(video_id)
 
-        # Extract video IDs from response
-        video_ids += [item['snippet']['resourceId']['videoId']
-                      for item in data['items']]
+            # Check if there are more pages of results
+            if 'nextPageToken' in data:
+                params['pageToken'] = data['nextPageToken']  # Get next page
+            else:
+                break  # No more pages, exit the loop
+        else:
+            print(f"Error: {response.status_code}")
+            print(response.text)
+            return None
 
-        # Check if there's another page of results
-        next_page_token = data.get('nextPageToken')
-        if not next_page_token:
-            break
-
-    return video_ids
+    return video_ids  # Return the list of video IDs
 
 
-# Main function
-def main():
-    # Replace with your YouTube API key and Playlist ID
-    api_key = 'YOUR_API_KEY'
-    playlist_id = 'YOUR_PLAYLIST_ID'
+if __name__ == "__main__":
+    # API_KEY = os.getenv('API_KEY')
+    # PLAYLIST_ID = 'PLJwa8GA7pXCWAnIeTQyw_mvy1L7ryxxPH'
 
-    print(f"Fetching video IDs from playlist {playlist_id}...")
+    # video_ids = get_youtube_playlist_items(PLAYLIST_ID, API_KEY)
 
-    # Call the function to get video IDs
-    video_ids = get_video_ids_from_playlist(api_key, playlist_id)
-
-    # Check if video IDs were fetched successfully
-    if video_ids:
-        print(f"Successfully fetched {len(video_ids)} video IDs.")
-        print("Video IDs:", video_ids)
-    else:
-        print("No video IDs found or an error occurred.")
-
-
-# Entry point of the script
-if __name__ == '__main__':
-    main()
+    # if video_ids:
+    #     print(video_ids)  # Print the list of video IDs
+    script = YouTubeTranscriptApi.get_transcript("Gg1L-sBIxnY")
+    print(script)

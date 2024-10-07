@@ -1,2 +1,4 @@
 .env
 my_env/
+client_secret.json
+.env
