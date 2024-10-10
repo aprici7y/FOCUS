@@ -3,39 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Key Manager</title>
+    <title>Summarizer</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>API Key Manager</h1>
-        <form id="apiForm">
-            <div class="input-group">
-                <label for="notion-api-key">Notion API Key</label>
-                <input type="text" id="notion-api-key" name="notionApiKey" required>
-            </div>
-            <div class="input-group">
-                <label for="youtube-api-key">YouTube API Key</label>
-                <input type="text" id="youtube-api-key" name="youtubeApiKey" required>
-            </div>
-            <div class="input-group">
-                <label for="openai-api-key">OpenAI API Key</label>
-                <input type="text" id="openai-api-key" name="openaiApiKey" required>
-            </div>
-            <div class="input-group playlist-id">
-                <label for="playlist-id">Playlist ID</label>
-                <input type="text" id="playlist-id" name="playlistId" required>
-            </div>
-            <div class="input-group">
-                <label for="action">Action</label>
-                <select id="action" name="action" required>
-                    <option value="summarize">Summarize</option>
-                    <option value="enrich">Enrich</option>
-                    <option value="simplify">Simplify</option>
-                </select>
-            </div>
-            <button type="submit">Submit</button>
-        </form>
+        <h1>Summarizer</h1>
+        <div class="tabs">
+            <button class="tab-button active" data-tab="api-keys">API Keys</button>
+            <button class="tab-button" data-tab="playlist">Playlist</button>
+            <button class="tab-button" data-tab="transcript">Transcript</button>
+        </div>
+        <div class="tab-content active" id="api-keys">
+            <form id="apiForm">
+                <div class="input-group">
+                    <label for="notion-api-key">Notion API Key</label>
+                    <input type="text" id="notion-api-key" name="notionApiKey" required>
+                </div>
+                <div class="input-group">
+                    <label for="youtube-api-key">YouTube API Key</label>
+                    <input type="text" id="youtube-api-key" name="youtubeApiKey" required>
+                </div>
+                <div class="input-group">
+                    <label for="openai-api-key">OpenAI API Key</label>
+                    <input type="text" id="openai-api-key" name="openaiApiKey" required>
+                </div>
+                <button type="submit">Save API Keys</button>
+            </form>
+        </div>
+        <div class="tab-content" id="playlist">
+            <form id="playlistForm">
+                <div class="input-group">
+                    <label for="playlist-id">Playlist ID</label>
+                    <input type="text" id="playlist-id" name="playlistId" required>
+                </div>
+                <div class="input-group">
+                    <label for="playlist-action">Action</label>
+                    <select id="playlist-action" name="action" required>
+                        <option value="summarize">Summarize</option>
+                        <option value="enrich">Enrich</option>
+                        <option value="simplify">Simplify</option>
+                    </select>
+                </div>
+                <button type="submit">Submit Playlist</button>
+            </form>
+        </div>
+        <div class="tab-content" id="transcript">
+            <form id="transcriptForm">
+                <div class="input-group">
+                    <label for="transcript-text">Transcript</label>
+                    <textarea id="transcript-text" name="transcript" rows="10" required></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="transcript-action">Action</label>
+                    <select id="transcript-action" name="action" required>
+                        <option value="summarize">Summarize</option>
+                        <option value="enrich">Enrich</option>
+                        <option value="simplify">Simplify</option>
+                    </select>
+                </div>
+                <button type="submit">Submit Transcript</button>
+            </form>
+        </div>
         <div id="loading" class="loading hidden">
             <div class="spinner"></div>
             <p>Processing...</p>
