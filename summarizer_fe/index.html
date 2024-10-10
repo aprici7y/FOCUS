@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>API Key Manager</h1>
+        <form id="apiForm">
+            <div class="input-group">
+                <label for="notion-api-key">Notion API Key</label>
+                <input type="text" id="notion-api-key" name="notionApiKey" required>
+            </div>
+            <div class="input-group">
+                <label for="youtube-api-key">YouTube API Key</label>
+                <input type="text" id="youtube-api-key" name="youtubeApiKey" required>
+            </div>
+            <div class="input-group">
+                <label for="openai-api-key">OpenAI API Key</label>
+                <input type="text" id="openai-api-key" name="openaiApiKey" required>
+            </div>
+            <div class="input-group playlist-id">
+                <label for="playlist-id">Playlist ID</label>
+                <input type="text" id="playlist-id" name="playlistId" required>
+            </div>
+            <div class="input-group">
+                <label for="action">Action</label>
+                <select id="action" name="action" required>
+                    <option value="summarize">Summarize</option>
+                    <option value="enrich">Enrich</option>
+                    <option value="simplify">Simplify</option>
+                </select>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>

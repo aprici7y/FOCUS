@@ -1,0 +1,14 @@
+{
+    "name": "summarizer",
+    "version": "1.0.0",
+    "description": "Summarizes",
+    "main": "main.js",
+    "author": "aprici7y",
+    "license": "MIT",
+    "devDependencies": {
+        "electron": "^32.2.0"
+    },
+    "scripts": {
+    "start": "electron ."
+  }
+}
