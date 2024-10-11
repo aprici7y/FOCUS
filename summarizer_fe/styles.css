@@ -122,7 +122,8 @@ button[type="submit"]:active {
     border-radius: 8px;
 }
 .loading.hidden {
-    display: none;
+    visibility: hidden;
+    position: absolute;
 }
 .spinner {
     width: 50px;
@@ -139,4 +140,57 @@ button[type="submit"]:active {
 .loading p {
     margin-top: 1rem;
     color: #b8b8ff;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon input {
+    padding-right: 35px;
+}
+
+.input-with-icon .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #9d9dff;
+}
+
+.input-with-icon .toggle-password:hover {
+    color: #b8b8ff;
+}
+
+
+/* Success and error icons styling */
+#success-icon, #error-icon {
+    font-size: 50px; /* Match size to the spinner */
+    margin-top: 1rem; /* Space above the icon */
+    opacity: 0; /* Initially hidden (for smooth transitions) */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition for appearance */
+}
+
+/* Success icon styling to match spinner colors */
+.success {
+    color: #34c759; /* Green for success */
+    border: 5px solid #533483; /* Outer border matching the spinner's border */
+    border-radius: 50%; /* Make it round like the spinner */
+    padding: 5px; /* Space inside the border */
+    background-color: #b8b8ff; /* Background matching the spinner's top color */
+}
+
+/* Error icon styling */
+.error {
+    color: #ff3b30; /* Red for error */
+    border: 5px solid #533483; /* Outer border same as the spinner */
+    border-radius: 50%; /* Make it round */
+    padding: 5px; /* Space inside the border */
+    background-color: #b8b8ff; /* Background similar to spinner */
+}
+
+
+.icon-large {
+    font-size: 50px; /* This can also be adjusted */
 }

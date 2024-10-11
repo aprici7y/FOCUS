@@ -6,9 +6,11 @@
     "author": "aprici7y",
     "license": "MIT",
     "devDependencies": {
-        "electron": "^32.2.0"
+        "electron": "^32.2.0",
+        "keytar": "^7.9.0",
+        "sqlite3": "^5.1.7"
     },
     "scripts": {
-    "start": "electron ."
-  }
+        "start": "electron ."
+    }
 }

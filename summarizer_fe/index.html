@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Summarizer</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -17,16 +18,25 @@
         <div class="tab-content active" id="api-keys">
             <form id="apiForm">
                 <div class="input-group">
-                    <label for="notion-api-key">Notion API Key</label>
-                    <input type="text" id="notion-api-key" name="notionApiKey" required>
+                    <label for="notionApiKey">Notion API Key</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="notionApiKey" name="notionApiKey" required>
+                        <i class="fas fa-eye toggle-password" data-target="notionApiKey"></i>
+                    </div>
                 </div>
                 <div class="input-group">
-                    <label for="youtube-api-key">YouTube API Key</label>
-                    <input type="text" id="youtube-api-key" name="youtubeApiKey" required>
+                    <label for="youtubeApiKey">YouTube API Key</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="youtubeApiKey" name="youtubeApiKey" required>
+                        <i class="fas fa-eye toggle-password" data-target="youtubeApiKey"></i>
+                    </div>
                 </div>
                 <div class="input-group">
-                    <label for="openai-api-key">OpenAI API Key</label>
-                    <input type="text" id="openai-api-key" name="openaiApiKey" required>
+                    <label for="openaiApiKey">OpenAI API Key</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="openaiApiKey" name="openaiApiKey" required>
+                        <i class="fas fa-eye toggle-password" data-target="openaiApiKey"></i>
+                    </div>
                 </div>
                 <button type="submit">Save API Keys</button>
             </form>
@@ -66,8 +76,16 @@
             </form>
         </div>
         <div id="loading" class="loading hidden">
-            <div class="spinner"></div>
+            <div class="spinner"></div> <!-- This div is the spinner -->
             <p>Processing...</p>
+        </div>
+        <div id="success" class="loading hidden">
+            <i class="far fa-check-circle success icon-large"></i> <!-- Success icon -->
+            <p>Success</p>
+        </div>
+        <div id="error" class="loading hidden">
+            <i class="far fa-times-circle error icon-large"></i> <!-- Error icon -->
+            <p>Error</p>
         </div>
     </div>
     <script src="renderer.js"></script>
