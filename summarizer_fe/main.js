@@ -109,3 +109,18 @@ ipcMain.handle('get-api-keys', async () => {
     return { success: false, error: error.message };
   }
 });
+
+ipcMain.handle('submit-playlist', async (event, data) => {
+  try {
+    // Simulate processing the playlist data
+    // Replace the following with your actual backend logic for handling playlists
+    console.log('Playlist submitted:', data);
+
+    // Simulate success response
+    // In actual implementation, handle the data and return an appropriate response
+    return { success: true };
+  } catch (error) {
+    console.error('Error processing playlist submission:', error);
+    return { success: false, error: error.message };
+  }
+});

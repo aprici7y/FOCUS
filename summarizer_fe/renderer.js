@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const errorIcon = document.getElementById('error');
     const togglePasswordButtons = document.querySelectorAll('.toggle-password');
     const apiForm = document.getElementById('apiForm');
+    const playlistForm = document.getElementById('playlistForm');
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     // Tab switching
@@ -109,48 +110,62 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 2000); // 3000 milliseconds = 3 seconds
     });
 
+   
+// Playlist form submission
+playlistForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
     
-    // // Form submissions
-    // const forms = {
-    //     apiForm: document.getElementById('apiForm'),
-    //     playlistForm: document.getElementById('playlistForm'),
-    //     transcriptForm: document.getElementById('transcriptForm')
-    // };
-
-    // Object.values(forms).forEach(form => {
-    //     form.addEventListener('submit', function(e) {
-    //         e.preventDefault();
-            
-    //         const formData = new FormData(this);
-    //         const data = Object.fromEntries(formData.entries());
-            
-    //         // Show loading indicator
-    //         loadingIndicator.classList.remove('hidden');
-            
-    //         // Disable form inputs and submit button
-    //         Array.from(form.elements).forEach(element => element.disabled = true);
-            
-    //         // We'll use IPC to send this data to the main process
-    //         window.electron.send('submit-form', { formId: this.id, data });
-    //     });
-    // });
-
-    // // Listen for the response from the main process
-    // window.electron.receive('form-response', (response) => {
-    //     // Hide loading indicator
-    //     loadingIndicator.classList.add('hidden');
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Show loading indicator
+    loadingIndicator.classList.remove('hidden');
+    
+    // Disable form inputs and submit button
+    Array.from(this.elements).forEach(element => element.disabled = true);
+    
+    try {
+        // Simulate sending data to the backend (replace with your actual API request)
+        const result = await window.electron.submitPlaylist(data);
         
-    //     // Re-enable form inputs and submit button for all forms
-    //     Object.values(forms).forEach(form => {
-    //         Array.from(form.elements).forEach(element => element.disabled = false);
-    //     });
+        // Clear visibility state
+        successIcon.classList.add('hidden'); // Hide success icon
+        errorIcon.classList.add('hidden'); // Hide error icon
         
-    //     if (response.success) {
-    //         console.log('Success:', response.data);
-    //         alert('Data submitted successfully!');
-    //     } else {
-    //         console.error('Error:', response.error);
-    //         alert('An error occurred while submitting the data.');
-    //     }
-    // });
+        if (result.success) {
+            // Show success icon
+            successIcon.classList.remove('hidden'); 
+            successIcon.classList.add('visible'); // Make it visible
+            
+            // Optionally hide error icon if previously shown
+            errorIcon.classList.add('hidden');
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        console.error('Error submitting playlist:', error);
+        
+        // Show error icon if an error occurs
+        errorIcon.classList.remove('hidden'); 
+        errorIcon.classList.add('visible'); // Make it visible
+
+        // Hide the success icon if it was previously shown
+        successIcon.classList.add('hidden');
+    } finally {
+        // Hide loading indicator
+        loadingIndicator.classList.add('hidden'); // Hide the loading indicator
+        Array.from(this.elements).forEach(element => element.disabled = false); // Re-enable inputs
+    }
+    
+    setTimeout(() => {
+        successIcon.classList.remove('visible'); // Hide the success icon
+        successIcon.classList.add('hidden'); // Ensure it is hidden in the DOM
+        errorIcon.classList.remove('visible'); // Hide the error icon
+        errorIcon.classList.add('hidden'); // Ensure it is hidden in the DOM
+    }, 2000); // 2000 milliseconds = 2 seconds
+});
+
+
+
+
 });

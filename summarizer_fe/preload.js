@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(channel, (event, ...args) => func(...args));
   },
   saveApiKeys: (keys) => ipcRenderer.invoke('save-api-keys', keys),
-  getApiKeys: () => ipcRenderer.invoke('get-api-keys')
+  getApiKeys: () => ipcRenderer.invoke('get-api-keys'),
+  submitPlaylist: (data) => ipcRenderer.invoke('submit-playlist', data)
 });
