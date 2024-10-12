@@ -27,8 +27,8 @@ notion = Client(auth=NOTION_API_KEY)
 
 # Define your parent page ID
 # Replace with your parent page's Notion ID
-PARENT_PAGE_ID = "118d3dc2-9328-805c-b056-ea4201a8dfc9"
-OBSIDIAN_VAULT_PATH = "/home/andy/studium/obsidian/vault"
+PARENT_PAGE_ID = os.getenv('NOTION_PAGE_ID')
+OBSIDIAN_VAULT_PATH = os.getenv('OBSIDIAN_VAULT')
 USE_NOTION = False
 
 
