@@ -127,61 +127,106 @@ def get_youtube_playlist_details(playlist_id, api_key):
         return None
 
 
+def create_blocks(content):
+    blocks = []
+
+    # If content is a string, split it into lines
+    if isinstance(content, str):
+        lines = content.split('\n')
+    else:
+        # If content is already a list, use it directly
+        lines = content
+
+    in_bullet_list = False
+
+    for line in lines:
+        line = line.strip() if isinstance(line, str) else line
+        if line:
+            if isinstance(line, dict):
+                # If the line is already a block dictionary, add it directly
+                blocks.append(line)
+            elif isinstance(line, str):
+                if line.startswith('**') and line.endswith('**'):
+                    # Handle bold text as heading 2
+                    blocks.append({
+                        "object": "block",
+                        "type": "heading_2",
+                        "heading_2": {
+                            "rich_text": [{"type": "text", "text": {"content": line.strip('**')}}]
+                        }
+                    })
+                    in_bullet_list = False
+                elif line.startswith('- '):
+                    # Handle bullet points
+                    blocks.append({
+                        "object": "block",
+                        "type": "bulleted_list_item",
+                        "bulleted_list_item": {
+                            "rich_text": [{"type": "text", "text": {"content": line[2:]}}]
+                        }
+                    })
+                    in_bullet_list = True
+                elif line.startswith('**') and ':' in line:
+                    # Handle bold text with colon as heading 3
+                    title, content = line.split(':', 1)
+                    blocks.append({
+                        "object": "block",
+                        "type": "heading_3",
+                        "heading_3": {
+                            "rich_text": [{"type": "text", "text": {"content": title.strip('** ')}}]
+                        }
+                    })
+                    if content.strip():
+                        blocks.append({
+                            "object": "block",
+                            "type": "paragraph",
+                            "paragraph": {
+                                "rich_text": [{"type": "text", "text": {"content": content.strip()}}]
+                            }
+                        })
+                    in_bullet_list = False
+                else:
+                    # Handle regular paragraphs
+                    blocks.append({
+                        "object": "block",
+                        "type": "paragraph",
+                        "paragraph": {
+                            "rich_text": [{"type": "text", "text": {"content": line}}]
+                        }
+                    })
+                    in_bullet_list = False
+
+    return blocks
+
+
 def create_notion_page(parent_id, title, content):
-    # Function to split content into chunks of max 2000 characters
     def split_content(text, max_length=2000):
-        words = text.split()
+        paragraphs = text.split('\n\n')
         chunks = []
         current_chunk = []
 
-        for word in words:
-            if len(' '.join(current_chunk + [word])) <= max_length:
-                current_chunk.append(word)
+        for paragraph in paragraphs:
+            if len('\n\n'.join(current_chunk + [paragraph])) <= max_length:
+                current_chunk.append(paragraph)
             else:
-                chunks.append(' '.join(current_chunk))
-                current_chunk = [word]
+                chunks.append('\n\n'.join(current_chunk))
+                current_chunk = [paragraph]
 
         if current_chunk:
-            chunks.append(' '.join(current_chunk))
+            chunks.append('\n\n'.join(current_chunk))
 
         return chunks
-
-    # Split the content into chunks
     content_chunks = split_content(content)
+    children = create_blocks(content_chunks)
 
-    # Prepare the children blocks
-    children = []
-    for chunk in content_chunks:
-        children.append({
-            "object": "block",
-            "type": "paragraph",
-            "paragraph": {
-                "rich_text": [
-                    {
-                        "type": "text",
-                        "text": {
-                            "content": chunk,
-                        },
-                    }
-                ]
-            },
-        })
-
-    # Create the page with multiple paragraph blocks
     response = notion.pages.create(
         parent={"type": "page_id", "page_id": parent_id},
         properties={
-            "title": [
-                {
-                    "type": "text",
-                    "text": {"content": title},
-                }
-            ]
+            "title": [{"type": "text", "text": {"content": title}}]
         },
         children=children,
     )
     return response
-# Example function to create the main page (playlist) and subpages (summaries of each video)
 
 
 def create_playlist_page_in_notion(playlist_title, video_summaries):
@@ -239,11 +284,17 @@ def playlist_transcripts():
         strategy = get_ai_strategy()
         ai_processor = AIProcessor(strategy)
 
-        # Prepare the prompt based on the action flag
         if action_flag == 'summarize':
-            prompt = f"Please summarize the following transcript for a Notion page:\n\n{full_transcript}"
+            prompt = (
+                f"Please summarize the following transcript. "
+                f"Provide a concise summary with bullet points highlighting the key points: \n\n{full_transcript}"
+            )
         elif action_flag == 'enrich':
-            prompt = f"Please enrich the following transcript with further details for a Notion page. Mark all details you added as bold, so one can distinguish between original and added content:\n\n{full_transcript}"
+            prompt = (
+                f"Please enrich the following transcript with further details for a Notion page. "
+                f"Mark all details you added with the tag <enriched>, so one can distinguish between original and added content. "
+                f"Provide a comprehensive summary with bullet points highlighting the key points and additional details:\n\n{full_transcript}"
+            )
         else:
             return jsonify({"error": "Invalid action flag. Use 'summarize' or 'enrich'."}), 400
 
