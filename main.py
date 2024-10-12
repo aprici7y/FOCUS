@@ -122,7 +122,7 @@ def playlist_transcripts():
     video_summaries = []
 
     # Get transcripts for the first two videos
-    for video in videos[:1]:  # Fetch the first two videos
+    for video in videos[:2]:  # Fetch the first two videos
         video_id = video['id']
         title = video['title']
         try:
@@ -147,7 +147,7 @@ def playlist_transcripts():
             )
         elif action_flag == 'enrich':
             prompt = (
-                f"Please enrich the following transcript with further details for a Notion page. "
+                f"Please enrich the following transcript with further details for a Obsidian. "
                 f"Mark all details you added with the tag <enriched>, so one can distinguish between original and added content. "
                 f"Provide a comprehensive summary with bullet points highlighting the key points and additional details:\n\n{full_transcript}"
             )
