@@ -72,39 +72,6 @@ def get_youtube_playlist_items(playlist_id, api_key):
 # Endpoint to get video IDs from a YouTube playlist
 
 
-@app.route('/api/playlist', methods=['GET'])
-def playlist():
-    playlist_id = request.args.get('playlist_id')
-    api_key = os.getenv('API_KEY')
-
-    if not playlist_id or not api_key:
-        return jsonify({"error": "Missing playlist_id or API key"}), 400
-
-    videos = get_youtube_playlist_items(playlist_id, api_key)
-
-    if videos is None:
-        return jsonify({"error": "Failed to fetch video IDs"}), 500
-
-    return jsonify(videos)
-
-# Endpoint to get transcript of a video
-
-
-@app.route('/api/transcript', methods=['GET'])
-def transcript():
-    video_id = request.args.get('video_id')
-
-    if not video_id:
-        return jsonify({"error": "Missing video_id"}), 400
-
-    try:
-        script = YouTubeTranscriptApi.get_transcript(video_id)
-        return jsonify(script)
-    except Exception as e:
-        print(f"Error retrieving transcript: {e}")
-        return jsonify({"error": "Failed to fetch transcript"}), 500
-
-
 def get_youtube_playlist_details(playlist_id, api_key):
     url = 'https://youtube.googleapis.com/youtube/v3/playlists'
     params = {
