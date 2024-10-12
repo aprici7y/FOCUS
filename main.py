@@ -9,6 +9,7 @@ from openai import OpenAI
 from mistralai import Mistral
 
 from ai_strategy import AIProcessor, MistralStrategy
+from note_app_strategy import NoteAppProcessor, NotionStrategy, ObsidianStrategy
 
 
 # Load environment variables
@@ -26,7 +27,9 @@ notion = Client(auth=NOTION_API_KEY)
 
 # Define your parent page ID
 # Replace with your parent page's Notion ID
-parent_page_id = "118d3dc2-9328-805c-b056-ea4201a8dfc9"
+PARENT_PAGE_ID = "118d3dc2-9328-805c-b056-ea4201a8dfc9"
+OBSIDIAN_VAULT_PATH = "/home/andy/studium/obsidian/vault"
+USE_NOTION = False
 
 
 def get_ai_strategy():
@@ -94,120 +97,6 @@ def get_youtube_playlist_details(playlist_id, api_key):
         return None
 
 
-def create_blocks(content):
-    blocks = []
-
-    # If content is a string, split it into lines
-    if isinstance(content, str):
-        lines = content.split('\n')
-    else:
-        # If content is already a list, use it directly
-        lines = content
-
-    in_bullet_list = False
-
-    for line in lines:
-        line = line.strip() if isinstance(line, str) else line
-        if line:
-            if isinstance(line, dict):
-                # If the line is already a block dictionary, add it directly
-                blocks.append(line)
-            elif isinstance(line, str):
-                if line.startswith('**') and line.endswith('**'):
-                    # Handle bold text as heading 2
-                    blocks.append({
-                        "object": "block",
-                        "type": "heading_2",
-                        "heading_2": {
-                            "rich_text": [{"type": "text", "text": {"content": line.strip('**')}}]
-                        }
-                    })
-                    in_bullet_list = False
-                elif line.startswith('- '):
-                    # Handle bullet points
-                    blocks.append({
-                        "object": "block",
-                        "type": "bulleted_list_item",
-                        "bulleted_list_item": {
-                            "rich_text": [{"type": "text", "text": {"content": line[2:]}}]
-                        }
-                    })
-                    in_bullet_list = True
-                elif line.startswith('**') and ':' in line:
-                    # Handle bold text with colon as heading 3
-                    title, content = line.split(':', 1)
-                    blocks.append({
-                        "object": "block",
-                        "type": "heading_3",
-                        "heading_3": {
-                            "rich_text": [{"type": "text", "text": {"content": title.strip('** ')}}]
-                        }
-                    })
-                    if content.strip():
-                        blocks.append({
-                            "object": "block",
-                            "type": "paragraph",
-                            "paragraph": {
-                                "rich_text": [{"type": "text", "text": {"content": content.strip()}}]
-                            }
-                        })
-                    in_bullet_list = False
-                else:
-                    # Handle regular paragraphs
-                    blocks.append({
-                        "object": "block",
-                        "type": "paragraph",
-                        "paragraph": {
-                            "rich_text": [{"type": "text", "text": {"content": line}}]
-                        }
-                    })
-                    in_bullet_list = False
-
-    return blocks
-
-
-def create_notion_page(parent_id, title, content):
-    def split_content(text, max_length=2000):
-        paragraphs = text.split('\n\n')
-        chunks = []
-        current_chunk = []
-
-        for paragraph in paragraphs:
-            if len('\n\n'.join(current_chunk + [paragraph])) <= max_length:
-                current_chunk.append(paragraph)
-            else:
-                chunks.append('\n\n'.join(current_chunk))
-                current_chunk = [paragraph]
-
-        if current_chunk:
-            chunks.append('\n\n'.join(current_chunk))
-
-        return chunks
-    content_chunks = split_content(content)
-    children = create_blocks(content_chunks)
-
-    response = notion.pages.create(
-        parent={"type": "page_id", "page_id": parent_id},
-        properties={
-            "title": [{"type": "text", "text": {"content": title}}]
-        },
-        children=children,
-    )
-    return response
-
-
-def create_playlist_page_in_notion(playlist_title, video_summaries):
-    # Create the main playlist page
-    main_page = create_notion_page(
-        parent_page_id, playlist_title, "This page contains summaries of videos in the playlist.")
-
-    # Create subpages for each video summary under the main page
-    for video in video_summaries:
-        video_title = video['title']
-        video_summary = video['summary']  # Summarized content for this video
-        create_notion_page(main_page["id"], video_title, video_summary)
-
-
 @app.route('/api/playlist_transcripts', methods=['GET'])
 def playlist_transcripts():
     playlist_id = request.args.get('playlist_id')
@@ -253,7 +142,7 @@ def playlist_transcripts():
 
         if action_flag == 'summarize':
             prompt = (
-                f"Please summarize the following transcript. "
+                f"Please summarize the following transcript for a Obsidian Note. "
                 f"Provide a concise summary with bullet points highlighting the key points: \n\n{full_transcript}"
             )
         elif action_flag == 'enrich':
@@ -285,8 +174,8 @@ def playlist_transcripts():
     })
 
 
-# Example function to integrate AI-summarized content into Notion
-def process_playlist_and_write_to_notion(playlist_id, action_flag):
+# Main Function to Process Playlist
+def process_playlist_and_write_to_storage(playlist_id, action_flag):
     # Get the playlist details from your API (replace with your API endpoint)
     api_url = f"http://localhost:5000/api/playlist_transcripts?playlist_id={playlist_id}&action={action_flag}"
     response = requests.get(api_url)
@@ -306,7 +195,6 @@ def process_playlist_and_write_to_notion(playlist_id, action_flag):
     formatted_summaries = []
     for video_summary in video_summaries:
         video_title = video_summary.get('video_title')
-        # Summarized content from the AI
         ai_summary = video_summary.get('ai_summary')
         if ai_summary:
             formatted_summaries.append({
@@ -314,32 +202,31 @@ def process_playlist_and_write_to_notion(playlist_id, action_flag):
                 'summary': ai_summary
             })
 
-    # Create the playlist page and subpages in Notion
-    create_playlist_page_in_notion(playlist_title, formatted_summaries)
+    # Create context for processing the playlist
+    context = NoteAppProcessor(
+        strategy=NotionStrategy(
+            notion_api_key=NOTION_API_KEY, parent_page_id=PARENT_PAGE_ID)
+        if USE_NOTION else ObsidianStrategy(vault_path=OBSIDIAN_VAULT_PATH)
+    )
 
-# REST API endpoint to trigger the Notion page creation process
+    # Process the playlist and create pages in Notion or Obsidian
+    context.process_playlist(playlist_title, formatted_summaries)
 
 
-@app.route('/api/notion_playlist', methods=['POST'])
-def notion_playlist():
+@app.route('/api/summarize', methods=['POST'])
+def summarize():
     try:
-        # Get data from the request
+        # Get playlist_id and action_flag from the request
         data = request.get_json()
         playlist_id = data.get('playlist_id')
         action_flag = data.get('action_flag')
 
-        # Validate parameters
-        if not playlist_id or not action_flag:
-            return jsonify({"error": "Missing playlist_id or action_flag"}), 400
+        process_playlist_and_write_to_storage(playlist_id, action_flag)
 
-        # Process playlist and create Notion pages
-        process_playlist_and_write_to_notion(playlist_id, action_flag)
-
-        return jsonify({"message": "Notion pages created successfully"}), 200
+        return jsonify({"status": "success", "message": "Playlist processed successfully."}), 200
 
     except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": "An error occurred"}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 # Run the Flask app
