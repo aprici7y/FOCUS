@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 API_KEY = os.getenv('NOTION_API_KEY')
-
+print(API_KEY)
 # Initialize the Notion client
 notion = Client(auth=API_KEY)  # Replace with your token
 
