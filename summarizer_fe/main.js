@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const keytar = require('keytar');
+const axios = require('axios');
+
 
 let db;
 
@@ -110,15 +112,79 @@ ipcMain.handle('get-api-keys', async () => {
   }
 });
 
+
+// Helper to retrieve an API key from Keytar based on service and key name
+const getApiKeyFromKeytar = async (service, keyName) => {
+  try {
+    const key = await keytar.getPassword(service, keyName);
+    if (!key) {
+      throw new Error(`API key for ${keyName} not found in Keytar.`);
+    }
+    return key;
+  } catch (error) {
+    console.error(`Error retrieving key from Keytar for ${keyName}:`, error);
+    throw error;
+  }
+};
+
+// Helper function to get key names from the database
+const getApiKeyName = (service, keyType) => {
+  return new Promise((resolve, reject) => {
+    db.get(
+      'SELECT id FROM api_keys WHERE service = ? AND id = ?',
+      [service, keyType],
+      (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row ? row.id : null);
+        }
+      }
+    );
+  });
+};
+
+
+
+// IPC handler for processing playlist submission
 ipcMain.handle('submit-playlist', async (event, data) => {
   try {
-    // Simulate processing the playlist data
-    // Replace the following with your actual backend logic for handling playlists
     console.log('Playlist submitted:', data);
 
-    // Simulate success response
-    // In actual implementation, handle the data and return an appropriate response
-    return { success: true };
+    // Retrieve API key names from the database
+    const youtubeApiKeyName = await getApiKeyName('summarizer-app', 'youtubeApiKey');
+    const mistralApiKeyName = await getApiKeyName('summarizer-app', 'mistralApiKey');
+    const obsidianVaultPathName = await getApiKeyName('summarizer-app', 'obsidianVaultPath');
+
+
+    if (!youtubeApiKeyName || !mistralApiKeyName) {
+      throw new Error('Missing API key names in database. Please check your settings.');
+    }
+
+    // Retrieve actual API keys from Keytar using the names
+    const youtubeApiKey = await getApiKeyFromKeytar('summarizer-app', youtubeApiKeyName);
+    const mistralApiKey = await getApiKeyFromKeytar('summarizer-app', mistralApiKeyName);
+    const obsidianVaultPath = await getApiKeyFromKeytar('summarizer-app', obsidianVaultPathName);
+
+    // Prepare the request payload
+    const payload = {
+      playlist_id: data.playlistId,
+      action_flag: data.action,
+      youtube_api_key: youtubeApiKey,
+      mistral_api_key: mistralApiKey,
+      obsidian_vault_path: obsidianVaultPath,
+    };
+    console.log(payload)
+    // Send the request to the backend
+    const response = await axios.post('http://localhost:5000/api/summarize', payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.data.status === 'success') {
+      return { success: true, message: response.data.message };
+    } else {
+      throw new Error(response.data.message || 'An error occurred while processing the playlist.');
+    }
   } catch (error) {
     console.error('Error processing playlist submission:', error);
     return { success: false, error: error.message };
