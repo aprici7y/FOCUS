@@ -122,7 +122,7 @@ def playlist_transcripts():
     video_summaries = []
 
     # Get transcripts for the first two videos
-    for video in videos[:2]:  # Fetch the first two videos
+    for video in videos[:1]:  # Fetch the first two videos
         video_id = video['id']
         title = video['title']
         try:
