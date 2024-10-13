@@ -2,4 +2,4 @@
 my_env/
 client_secret.json
 .env
-summarizer_fe/node_modules
+frontend/node_modules
