@@ -1,5 +1,11 @@
 # YouTube Transcript Summarizer
 
+![Screenshot from 2024-10-14 17-00-46](https://github.com/user-attachments/assets/2b5aaf1d-ce41-4684-a3e6-aef76589135e)
+
+![Screenshot from 2024-10-14 17-01-58](https://github.com/user-attachments/assets/2951cc0d-9ce8-4ed0-b49d-7ff4e3c6a4fa)
+
+![Screenshot from 2024-10-14 17-02-13](https://github.com/user-attachments/assets/8aed2676-b1bc-4e46-bcf8-659aa5205435)
+
 This project provides a YouTube Transcript Summarizer, with a backend Flask API to process transcripts and an Electron-based frontend for managing API keys and submitting playlists or transcripts for summarization. The application supports different summarization actions (summarize, enrich, simplify) and integrates with Obsidian for note management.
 
 ## Features
