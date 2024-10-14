@@ -53,6 +53,30 @@ class ObsidianStrategy(CreationStrategy):
         with open(main_note_path, 'w', encoding='utf-8') as file:
             file.write(main_content)
 
+    def create_or_update_transcript_overview(self, main_title, transcript_title, transcript_summary):
+        main_note_title = sanitize_title(main_title)
+        main_note_path = Path(self.vault_path) / f"{main_note_title}.md"
+
+        # Create the transcript summary file
+        self.create_summary_file(transcript_title, transcript_summary)
+
+        # Check if the main note already exists
+        if main_note_path.exists():
+            # If it exists, append the new transcript link to it
+            with open(main_note_path, 'a', encoding='utf-8') as file:
+                file.write(f"\n- [[{sanitize_title(transcript_title)}]]\n")
+        else:
+            # If it doesn't exist, create a new main note
+            main_content = f"# {main_title}\n\nThis collection contains the following transcripts:\n\n"
+            main_content += f"- [[{sanitize_title(transcript_title)}]]\n"
+
+            with open(main_note_path, 'w', encoding='utf-8') as file:
+                file.write(main_content)
+
+        print(f"Updated or created main note: {main_note_path}")
+        print(
+            f"Created transcript note: {sanitize_title(transcript_title)}.md")
+
 
 # Notion Strategy Class
 class NotionStrategy(CreationStrategy):
@@ -148,3 +172,7 @@ class NoteAppProcessor:
 
     def process_playlist(self, playlist_title, video_summaries):
         self._strategy.create(playlist_title, video_summaries)
+
+    def create_or_update_transcript_overview(self, course, title, video_summaries):
+        self._strategy.create_or_update_transcript_overview(
+            course, title,  video_summaries)

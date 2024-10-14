@@ -190,3 +190,48 @@ ipcMain.handle('submit-playlist', async (event, data) => {
     return { success: false, error: error.message };
   }
 });
+
+// IPC handler for processing transcript submission
+ipcMain.handle('submit-transcript', async (event, data) => {
+  try {
+    console.log('Transcript submitted:', data);
+
+    // Retrieve API key names from the database
+    const mistralApiKeyName = await getApiKeyName('summarizer-app', 'mistralApiKey');
+    const obsidianVaultPathName = await getApiKeyName('summarizer-app', 'obsidianVaultPath');
+
+    if (!mistralApiKeyName || !obsidianVaultPathName) {
+      throw new Error('Missing API key names in database. Please check your settings.');
+    }
+
+    // Retrieve actual API keys from Keytar using the names
+    const mistralApiKey = await getApiKeyFromKeytar('summarizer-app', mistralApiKeyName);
+    const obsidianVaultPath = await getApiKeyFromKeytar('summarizer-app', obsidianVaultPathName);
+
+    // Prepare the request payload
+    const payload = {
+      transcript: data.transcript,
+      title: data.title,
+      course: data.course,
+      action_flag: data.action,
+      mistral_api_key: mistralApiKey,
+      obsidian_vault_path: obsidianVaultPath,
+    };
+
+    console.log(payload);
+
+    // Send the request to the backend
+    const response = await axios.post('http://localhost:5000/api/process_transcript', payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.data.status === 'success') {
+      return { success: true, message: response.data.message };
+    } else {
+      throw new Error(response.data.message || 'An error occurred while processing the transcript.');
+    }
+  } catch (error) {
+    console.error('Error processing transcript submission:', error);
+    return { success: false, error: error.message };
+  }
+});

@@ -60,19 +60,27 @@
         <div class="tab-content" id="transcript">
             <form id="transcriptForm">
                 <div class="input-group">
-                    <label for="transcript-text">Transcript</label>
-                    <textarea id="transcript-text" name="transcript" rows="10" required></textarea>
+                  <label for="course">Course</label>
+                  <input type="text" id="course" name="course" required>
                 </div>
                 <div class="input-group">
-                    <label for="transcript-action">Action</label>
-                    <select id="transcript-action" name="action" required>
-                        <option value="summarize">Summarize</option>
-                        <option value="enrich">Enrich</option>
-                        <option value="simplify">Simplify</option>
-                    </select>
+                  <label for="title">Transcript Title</label>
+                  <input type="text" id="title" name="title" required>
+                </div>
+                <div class="input-group">
+                  <label for="transcript-text">Transcript</label>
+                  <textarea id="transcript-text" name="transcript" rows="10" required></textarea>
+                </div>
+                <div class="input-group">
+                  <label for="transcript-action">Action</label>
+                  <select id="transcript-action" name="action" required>
+                    <option value="summarize">Summarize</option>
+                    <option value="enrich">Enrich</option>
+                    <option value="simplify">Simplify</option>
+                  </select>
                 </div>
                 <button type="submit">Submit Transcript</button>
-            </form>
+              </form>
         </div>
         <div id="loading" class="loading hidden">
             <div class="spinner"></div>

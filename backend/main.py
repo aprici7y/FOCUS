@@ -141,7 +141,6 @@ def playlist_transcripts():
         # Choose the AI provider strategy based on Mistral API key
         strategy = get_ai_strategy(mistral_api_key)
         ai_processor = AIProcessor(strategy)
-
         if action_flag == 'summarize':
             prompt = (
                 f"Please summarize the following transcript for an Obsidian Note. "
@@ -150,8 +149,14 @@ def playlist_transcripts():
         elif action_flag == 'enrich':
             prompt = (
                 f"Please enrich the following transcript with further details for an Obsidian Note. "
-                f"Mark all details you added with the tag <enriched>, so one can distinguish between original and added content. "
-                f"Provide a comprehensive summary with bullet points highlighting the key points and additional details:\n\n{full_transcript}"
+                f"Mark all details you added with the tag ==, so one can distinguish between original and added content. "
+                f"Provide a comprehensive summary with bullet points highlighting the key points and additional details:\n\n{transcript}"
+            )
+        elif action_flag == 'simplify':
+            prompt = (
+                f"Please simplify the following transcript for an Obsidian Note. "
+                f"Rewrite the content using simpler language and concepts, making it easier to understand for a general audience. "
+                f"Provide a clear and straightforward explanation with bullet points for key ideas:\n\n{transcript}"
             )
         else:
             return jsonify({"error": "Invalid action flag. Use 'summarize' or 'enrich'."}), 400
@@ -226,6 +231,65 @@ def summarize():
         context.process_playlist(playlist_title, formatted_summaries)
 
         return jsonify({"status": "success", "message": "Playlist processed successfully."}), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/process_transcript', methods=['POST'])
+def process_transcript():
+    try:
+        data = request.json
+        transcript = data.get('transcript')
+        title = data.get('title')
+        course = data.get('course')
+        action_flag = data.get('action_flag')
+        mistral_api_key = data.get('mistral_api_key')
+        obsidian_vault_path = data.get('obsidian_vault_path')
+
+        if not all([transcript, title, action_flag, mistral_api_key, obsidian_vault_path]):
+            return jsonify({"error": "Missing required parameters"}), 400
+
+        # Choose the AI provider strategy based on Mistral API key
+        strategy = get_ai_strategy(mistral_api_key)
+        ai_processor = AIProcessor(strategy)
+
+        if action_flag == 'summarize':
+            prompt = (
+                f"Please summarize the following transcript for an Obsidian Note. "
+                f"Provide a concise summary with bullet points highlighting the key points: \n\n{transcript}"
+            )
+        elif action_flag == 'enrich':
+            prompt = (
+                f"Please enrich the following transcript with further details for an Obsidian Note. "
+                f"Mark all details you added with the tag ==, so one can distinguish between original and added content. "
+                f"Provide a comprehensive summary with bullet points highlighting the key points and additional details:\n\n{transcript}"
+            )
+        elif action_flag == 'simplify':
+            prompt = (
+                f"Please simplify the following transcript for an Obsidian Note. "
+                f"Rewrite the content using simpler language and concepts, making it easier to understand for a general audience. "
+                f"Provide a clear and straightforward explanation with bullet points for key ideas:\n\n{transcript}"
+            )
+        else:
+            return jsonify({"error": "Invalid action flag. Use 'summarize' or 'enrich'."}), 400
+
+        # Process the transcript with the chosen AI provider
+        ai_response = ai_processor.process(prompt)
+
+        # Extract the content from the AI response object
+        ai_content = ai_response.choices[0].message.content
+
+        # Create context for processing the transcript
+        context = NoteAppProcessor(
+            strategy=ObsidianStrategy(vault_path=obsidian_vault_path)
+        )
+
+        # Process the transcript and create a page in Obsidian
+        context.create_or_update_transcript_overview(
+            course, title,  ai_content)
+
+        return jsonify({"status": "success", "message": "Transcript processed successfully."}), 200
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
