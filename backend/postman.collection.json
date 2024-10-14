@@ -1,0 +1,100 @@
+{
+  "info": {
+    "name": "Summarizer API",
+    "_postman_id": "12345-67890-abcdef-ghijk",
+    "description": "Collection for testing YouTube transcript API with actions like summarization, enrichment, etc.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "/api/playlist_transcripts",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"playlist_id\": \"YOUR_YOUTUBE_PLAYLIST_ID\",\n    \"youtube_api_key\": \"YOUR_YOUTUBE_API_KEY\",\n    \"action\": \"summarize\",\n    \"mistral_api_key\": \"YOUR_MISTRAL_API_KEY\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/playlist_transcripts",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "playlist_transcripts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/api/summarize",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"playlist_id\": \"YOUR_YOUTUBE_PLAYLIST_ID\",\n    \"action_flag\": \"summarize\",\n    \"youtube_api_key\": \"YOUR_YOUTUBE_API_KEY\",\n    \"mistral_api_key\": \"YOUR_MISTRAL_API_KEY\",\n    \"obsidian_vault_path\": \"YOUR_OBSIDIAN_VAULT_PATH\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/summarize",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "summarize"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/api/process_transcript",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"transcript\": \"YOUR_TRANSCRIPT_TEXT\",\n    \"title\": \"Your Video Title\",\n    \"course\": \"Your Course Name\",\n    \"action_flag\": \"summarize\",\n    \"mistral_api_key\": \"YOUR_MISTRAL_API_KEY\",\n    \"obsidian_vault_path\": \"YOUR_OBSIDIAN_VAULT_PATH\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/process_transcript",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "process_transcript"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

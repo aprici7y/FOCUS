@@ -43,7 +43,7 @@ const createWindow = () => {
       nodeIntegration: false
     }
   });
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
   mainWindow.loadFile('index.html');
 };
 
