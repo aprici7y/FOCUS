@@ -1,10 +1,8 @@
 # YouTube Transcript Summarizer
 
-![Screenshot from 2024-10-14 17-00-46](https://github.com/user-attachments/assets/2b5aaf1d-ce41-4684-a3e6-aef76589135e)
-
-![Screenshot from 2024-10-14 17-01-58](https://github.com/user-attachments/assets/2951cc0d-9ce8-4ed0-b49d-7ff4e3c6a4fa)
-
-![Screenshot from 2024-10-14 17-02-13](https://github.com/user-attachments/assets/8aed2676-b1bc-4e46-bcf8-659aa5205435)
+![alt text](backend/images/image-1.png)
+![alt text](backend/images/image.png)
+![alt text](backend/images/image-2.png)
 
 This project provides a YouTube Transcript Summarizer, with a backend Flask API to process transcripts and an Electron-based frontend for managing API keys and submitting playlists or transcripts for summarization. The application supports different summarization actions (summarize, enrich, simplify) and integrates with Obsidian for note management.
 
@@ -49,7 +47,7 @@ This project provides a YouTube Transcript Summarizer, with a backend Flask API 
 #### a) Clone the repository
 
 ```bash
-git clone https://github.com/aprici7y/summarizer.git
+git clone https://github.com/aprici7y/FOCUS.git
 cd your-repo/backend
 ```
 
@@ -123,8 +121,8 @@ This will launch the Electron application for managing API keys and submitting r
 ### 1. Managing API Keys
 
 - Open the Electron app.
-- Go to **Settings**.
-- Enter the API keys for YouTube, Mistral, and Obsidian (if applicable), and click **Save**. The keys are securely stored using Keytar.
+- Go to **API Keys & Paths**.
+- Enter the API keys for YouTube, Mistral, and Obsidian (if applicable), and click **Save Settings**. The keys are securely stored using Keytar.
 
 ### 2. Summarizing Playlists or Transcripts
 
@@ -147,7 +145,3 @@ This will launch the Electron application for managing API keys and submitting r
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue if you encounter any bugs or have suggestions for new features.
-
----
-
-This README covers both backend and frontend parts, setup, API usage, and development instructions.
